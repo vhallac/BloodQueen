@@ -1,5 +1,87 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="BloodQueen.lua" />
+	<Script file="BloodQueenList.lua" />
+
+	<Button name="BloodQueen_ListBtnTemplate" virtual="true" movable="true">
+		<Size x="200" y="20" />
+
+		<Layers>
+			<Layer level="BORDER">
+				<FontString name="$parentName" inherits="GameFontNormal" justifyH="LEFT">
+					<Size x="190" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="10" y="0" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		
+		<Scripts>
+			<OnLoad>
+				self:SetFrameLevel(self:GetFrameLevel() + 2)
+				self:RegisterForDrag("LeftButton")
+			</OnLoad>
+			
+			<OnDragStart>
+				BQ_ListBtn_OnDragStart(self)
+			</OnDragStart>
+
+			<OnDragStop>
+				BQ_ListBtn_OnDragStop(self)
+			</OnDragStop>
+		</Scripts>
+
+		<HighlightTexture file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD">
+			<Size>
+				<AbsDimension x="190" y="16"/>
+			</Size>
+			<Anchors>
+				<Anchor point="LEFT">
+					<Offset>
+						<AbsDimension x="5" y="-2"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</HighlightTexture>
+	</Button>
+
+	<Frame name="BloodQueen_PrioFrameTemplate" hidden="true" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="none">
+					<Color r="0" g="0" b="0" a="0.75" />
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<ScrollFrame name="$parentScroller" inherits="FauxScrollFrameTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="0" y="0" />
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset x="0" y="0" />
+					</Anchor>
+				</Anchors>
+
+				<Scripts>
+					<OnLoad>
+						self:GetParent().scroller = self
+					</OnLoad>
+					<OnVerticalScroll>
+						FauxScrollFrame_OnVerticalScroll(self, offset, 20, BQ_OP_Prio_UpdateScroll)
+					</OnVerticalScroll>
+					<OnShow>
+						BQ_OP_Prio_UpdateScroll(self)
+					</OnShow>
+				</Scripts>
+			</ScrollFrame>
+		</Frames>
+	</Frame>
+
 	<Frame name="BloodQueenOP" hidden="true" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
 		<Size>
 			<AbsDimension x="550" y="564" />
@@ -424,7 +506,8 @@
 				</Scripts>
 				<CheckedTexture name="$parentCheck" file="Interface\Buttons\UI-CheckBox-Check" />
 			</CheckButton>
-			<ScrollFrame name="BloodQueenOP_Prio" inherits="UIPanelScrollFrameTemplate" hidden="true">
+
+			<Frame name="BloodQueenOP_Prio" inherits="BloodQueen_PrioFrameTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="210" y="440" />
 				</Size>
@@ -433,48 +516,15 @@
 						<Offset x="28" y="-50" />
 					</Anchor>
 				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture name="none">
-							<Color r="0" g="0" b="0" a="0.75" />
-						</Texture>
-					</Layer>
-				</Layers>
-				<ScrollChild>
-					<EditBox name="BloodQueenOP_PrioEdit" enableMouse="true" letters="40000" multiLine="true" autoFocus="false">
-						<Size>
-							<AbsDimension x="200" y="440" />
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="BloodQueenOP_Prio" relativePoint="TOPLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Frames />
-						<Layers />
-						<Scripts>
-							<OnEscapePressed>
-								this:ClearFocus() 
-							</OnEscapePressed>
-						</Scripts>
-						<FontString inherits="ChatFontNormal">
-							<FontHeight>
-								<AbsValue val="14" />
-							</FontHeight>
-							<Color r="1" g="1" b="1" />
-							<Shadow>
-								<Offset>
-									<AbsDimension x="1" y="-1" />
-								</Offset>
-								<Color r="0" g="0" b="0" />
-							</Shadow>
-						</FontString>
-					</EditBox>
-				</ScrollChild>
-			</ScrollFrame>
-			<ScrollFrame name="BloodQueenOP_PrioType1" inherits="UIPanelScrollFrameTemplate" hidden="true">
+
+				<Scripts>
+					<OnLoad>
+						BQ_OP_Prio_OnLoad(self.scroller, "BloodQueenOP_PrioEdit")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="BloodQueenOP_PrioType1" inherits="BloodQueen_PrioFrameTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="210" y="210" />
 				</Size>
@@ -490,41 +540,15 @@
 						</Texture>
 					</Layer>
 				</Layers>
-				<ScrollChild>
-					<EditBox name="BloodQueenOP_PrioEditType1" enableMouse="true" letters="40000" multiLine="true" autoFocus="false">
-						<Size>
-							<AbsDimension x="200" y="210" />
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="BloodQueenOP_PrioType1" relativePoint="TOPLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Frames />
-						<Layers />
-						<Scripts>
-							<OnEscapePressed>
-								this:ClearFocus() 
-							</OnEscapePressed>
-						</Scripts>
-						<FontString inherits="ChatFontNormal">
-							<FontHeight>
-								<AbsValue val="14" />
-							</FontHeight>
-							<Color r="1" g="1" b="1" />
-							<Shadow>
-								<Offset>
-									<AbsDimension x="1" y="-1" />
-								</Offset>
-								<Color r="0" g="0" b="0" />
-							</Shadow>
-						</FontString>
-					</EditBox>
-				</ScrollChild>
-			</ScrollFrame>
-			<ScrollFrame name="BloodQueenOP_PrioType2" inherits="UIPanelScrollFrameTemplate" hidden="true">
+
+				<Scripts>
+					<OnLoad>
+						BQ_OP_Prio_OnLoad(self.scroller, "BloodQueenOP_PrioEditType1")
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="BloodQueenOP_PrioType2" inherits="BloodQueen_PrioFrameTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="210" y="210" />
 				</Size>
@@ -533,47 +557,13 @@
 						<Offset x="28" y="-280" />
 					</Anchor>
 				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture name="none">
-							<Color r="0" g="0" b="0" a="0.75" />
-						</Texture>
-					</Layer>
-				</Layers>
-				<ScrollChild>
-					<EditBox name="BloodQueenOP_PrioEditType2" enableMouse="true" letters="40000" multiLine="true" autoFocus="false">
-						<Size>
-							<AbsDimension x="200" y="210" />
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="BloodQueenOP_PrioType2" relativePoint="TOPLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Frames />
-						<Layers />
-						<Scripts>
-							<OnEscapePressed>
-								this:ClearFocus() 
-							</OnEscapePressed>
-						</Scripts>
-						<FontString inherits="ChatFontNormal">
-							<FontHeight>
-								<AbsValue val="14" />
-							</FontHeight>
-							<Color r="1" g="1" b="1" />
-							<Shadow>
-								<Offset>
-									<AbsDimension x="1" y="-1" />
-								</Offset>
-								<Color r="0" g="0" b="0" />
-							</Shadow>
-						</FontString>
-					</EditBox>
-				</ScrollChild>
-			</ScrollFrame>
+
+				<Scripts>
+					<OnLoad>
+						BQ_OP_Prio_OnLoad(self.scroller, "BloodQueenOP_PrioEditType2")
+					</OnLoad>
+				</Scripts>
+			</Frame>
 		</Frames>
 		<Layers>
 			<Layer level="OVERLAY">
