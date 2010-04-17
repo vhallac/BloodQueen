@@ -99,6 +99,8 @@ local MovingButtonLevel
 local DraggingPlayer = false
 
 function BQ_ListBtn_OnDragStart(frame)
+    -- Hide the close button while dragging
+    frame.CloseButton:Hide()
 	MovingButtonLevel = frame:GetFrameLevel()
 	if frame.list.ListLocked then return end
 
@@ -167,5 +169,24 @@ function BQ_ListBtn_OnDragStop(frame)
     if targetList then
         targetList:UpdateItemList(targetList.frame)
     end
+
+    -- Edge case: if the drag ends over the same line, we dont get a new OnEnter
+    -- event. Send one manually.
+    if MouseIsOver(frame) then
+        frame:GetScript("OnEnter")(frame)
+    end
 end
 
+function BQ_ListCloseBtn_OnClick(frame)
+    DEFAULT_CHAT_FRAME:AddMessage("BQ_ListCloseBtn_OnClick")
+    -- Edge case: When this button was the last visible one, don't hide it with
+    -- close button visible. If it is repopulated, it will come back with the
+    -- button visible even though the mouse ise not over it.
+    frame:Hide()
+    local listBtn = frame:GetParent()
+    local sourceIdx = listBtn.itemIdx
+    local sourceList = listBtn.list
+
+    table.remove(sourceList.items, sourceIdx)
+    sourceList:UpdateItemList(sourceList.frame)
+end

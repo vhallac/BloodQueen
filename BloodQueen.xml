@@ -17,13 +17,37 @@
 				</FontString>
 			</Layer>
 		</Layers>
-		
+
+		<Frames>
+			<Button name="$parentCloseButton" hidden="true" inherits="UIPanelButtonTemplate" text="X">
+				<Size x="20" y="17" />
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset x="0" y="-3" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:GetParent().CloseButton = self
+					</OnLoad>
+					<OnLeave>
+						if not MouseIsOver(self:GetParent()) then
+							self:Hide()
+						end
+					</OnLeave>
+					<OnClick>
+						BQ_ListCloseBtn_OnClick(self)
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+
 		<Scripts>
 			<OnLoad>
 				self:SetFrameLevel(self:GetFrameLevel() + 2)
 				self:RegisterForDrag("LeftButton")
 			</OnLoad>
-			
+
 			<OnDragStart>
 				BQ_ListBtn_OnDragStart(self)
 			</OnDragStart>
@@ -31,6 +55,16 @@
 			<OnDragStop>
 				BQ_ListBtn_OnDragStop(self)
 			</OnDragStop>
+
+			<OnEnter>
+				self.CloseButton:Show()
+			</OnEnter>
+
+			<OnLeave>
+				if not MouseIsOver(self.CloseButton) then
+					self.CloseButton:Hide()
+				end
+			</OnLeave>
 		</Scripts>
 
 		<HighlightTexture file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD">
