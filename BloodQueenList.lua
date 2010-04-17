@@ -99,8 +99,12 @@ local MovingButtonLevel
 local DraggingPlayer = false
 
 function BQ_ListBtn_OnDragStart(frame)
-    -- Hide the close button while dragging
-    frame.CloseButton:Hide()
+    -- Hide the close button while dragging. It should not be nil, but will
+    -- check it junt in case you can move fast enough to make it disappear
+    -- before drag starts.
+    if frame.DeleteBtn then
+        frame.DeleteBtn:Hide()
+    end
 	MovingButtonLevel = frame:GetFrameLevel()
 	if frame.list.ListLocked then return end
 
@@ -126,6 +130,7 @@ end
 function BQ_ListBtn_OnDragStop(frame)
 	frame:SetFrameLevel(MovingButtonLevel)
 	frame:StopMovingOrSizing()
+    DraggingPlayer = false
 
     local sourceList, sourceIdx
     local targetList, targetIdx
@@ -177,8 +182,32 @@ function BQ_ListBtn_OnDragStop(frame)
     end
 end
 
-function BQ_ListCloseBtn_OnClick(frame)
-    DEFAULT_CHAT_FRAME:AddMessage("BQ_ListCloseBtn_OnClick")
+function BQ_ListBtn_OnEnter(frame)
+    -- First, reparent and reposition the delete button
+    local btn = BloodQueenOP_B_Delete
+    btn:SetParent(frame)
+    frame.DeleteBtn = btn
+    btn:ClearAllPoints()
+    btn:SetPoint("TOPRIGHT", frame, 0, -3)
+
+    -- Then make it visible if we are not dragging (when you drag up or down,
+    -- the button get reparented to another list button, then gets reparented
+    -- back to us, making it visible while dragging)
+    if not DraggingPlayer then
+        btn:Show()
+    end
+end
+
+function BQ_ListBtn_OnLeave(frame)
+    -- Don't hide the button when we move out into the delete button
+    if not MouseIsOver(frame.DeleteBtn) then
+        -- Just hide the button and forget it
+        frame.DeleteBtn:Hide()
+        frame.DeleteBtn = nil
+    end
+end
+
+function BQ_ListDeleteBtn_OnClick(frame)
     -- Edge case: When this button was the last visible one, don't hide it with
     -- close button visible. If it is repopulated, it will come back with the
     -- button visible even though the mouse ise not over it.

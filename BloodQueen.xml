@@ -18,30 +18,6 @@
 			</Layer>
 		</Layers>
 
-		<Frames>
-			<Button name="$parentCloseButton" hidden="true" inherits="UIPanelButtonTemplate" text="X">
-				<Size x="20" y="17" />
-				<Anchors>
-					<Anchor point="TOPRIGHT">
-						<Offset x="0" y="-3" />
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						self:GetParent().CloseButton = self
-					</OnLoad>
-					<OnLeave>
-						if not MouseIsOver(self:GetParent()) then
-							self:Hide()
-						end
-					</OnLeave>
-					<OnClick>
-						BQ_ListCloseBtn_OnClick(self)
-					</OnClick>
-				</Scripts>
-			</Button>
-		</Frames>
-
 		<Scripts>
 			<OnLoad>
 				self:SetFrameLevel(self:GetFrameLevel() + 2)
@@ -57,13 +33,11 @@
 			</OnDragStop>
 
 			<OnEnter>
-				self.CloseButton:Show()
+				BQ_ListBtn_OnEnter(self)
 			</OnEnter>
 
 			<OnLeave>
-				if not MouseIsOver(self.CloseButton) then
-					self.CloseButton:Hide()
-				end
+				BQ_ListBtn_OnLeave(self)
 			</OnLeave>
 		</Scripts>
 
@@ -598,6 +572,22 @@
 					</OnLoad>
 				</Scripts>
 			</Frame>
+
+			<!-- A hidden button that gets reparented and enabled when mouse is
+				 over a list element button -->
+			<Button name="BloodQueenOP_B_Delete" hidden="true" inherits="UIPanelButtonTemplate" text="X">
+				<Size x="20" y="17" />
+				<Scripts>
+					<OnLeave>
+						if not MouseIsOver(self:GetParent()) then
+							self:GetParent():GetScript("OnLeave")(self:GetParent())
+						end
+					</OnLeave>
+					<OnClick>
+						BQ_ListDeleteBtn_OnClick(self)
+					</OnClick>
+				</Scripts>
+			</Button>
 		</Frames>
 		<Layers>
 			<Layer level="OVERLAY">
